@@ -79,11 +79,11 @@ wa_bot = Whatsapp(number_id=NUM_ID, token=TOKEN)
 pyautogui.FAILSAFE = False
 pyautogui.press('esc')
 
+gmtTime: str = lambda tz: datetime.now(
+    pytz.timezone(tz)).strftime("%H : %M : %S")
+
 def open_WhatsApp():
     bot.get("https://web.whatsapp.com")
-
-    gmtTime: str = lambda tz: datetime.now(
-        pytz.timezone(tz)).strftime("%H : %M : %S")
 
     try:
         print(text2art("\nLogging in..."), "💿")
@@ -454,9 +454,7 @@ def processVideos(**media_info):
         if value['type'] == 'video':
             if path.exists(fr'{base_path}\video{idx}.mp4'):
                 remove(fr'{base_path}\video{idx}.mp4')
-                rename(f'{base_path}\{key}.mp4', fr'{base_path}\video{idx}.mp4')
-            else:
-                rename(f'{base_path}\{key}.mp4', fr'{base_path}\video{idx}.mp4')
+            rename(f'{base_path}\{key}.mp4', fr'{base_path}\video{idx}.mp4')
             stream = ffmpeg.input(fr'{base_path}\video{idx}.mp4')
             stream = ffmpeg.output(stream, f'{base_path}\{key}.mp4')
             ffmpeg.run(stream)
@@ -524,3 +522,6 @@ if __name__ == "__main__":
     # }
 
     uploadToTwitter(**status_captions)
+    wa_bot.send_message(NUMBER, f"Successfully Uploaded to Twitter at {gmtTime(timezone)}.", \
+        reply_markup=Inline_list("Show list",list_items=[List_item("Nice one 👌"), List_item("Thanks ✨"), List_item("Great Job")]))
+        
