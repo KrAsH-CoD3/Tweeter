@@ -1,9 +1,9 @@
 import ffmpeg
+from time import sleep
 from datetime import datetime
 from selenium import webdriver
 from typing import Optional, Dict
 from os import path, remove, rename 
-from time import sleep, perf_counter
 from os import environ as env_variable
 from selenium.webdriver.common.by import By
 from art import tprint, set_default, text2art
@@ -24,10 +24,9 @@ TOKEN: str =  env_variable.get("TOKEN")  # Token
 
 
 set_default("fancy99")
-# tprint("WhatsApp Status Viewer", 'rectangles')
 
 timezone: str = "Africa/Lagos"  # Your timezone
-statusUploaderName: str = "Jake" # As it is saved on your phone(Case Sensitive)
+statusUploaderName: str = "Ijk" # As it is saved on your phone(Case Sensitive)
 # statusUploaderName: str = input("Whose person status do you want to view? ") # As it is saved on your phone(Case Sensitive)
 ppsXpath: str = f'//span[@title="{statusUploaderName}"]//..//..//..//preceding-sibling::\
     div[@class="_1AHcd"]//*[local-name()="svg" and @class="bx0vhl82 ma4rpf0l lhggkp7q"]'
@@ -54,33 +53,6 @@ prefs = {
     'download.prompt_for_download': False,
 }
 
-service = Service(executable_path=driverpath)
-options = Options()
-options.add_argument("--no-sandbox")
-# options.add_argument("--headless")
-options.add_argument("--single-process")
-options.add_experimental_option('prefs', prefs)
-options.add_argument('--disable-dev-shm-usage')
-options.add_argument(r'--profile-directory=Tweeter Profile')
-options.add_argument(r'user-data-dir=C:\Tweeter Chrome Profile')
-options.add_experimental_option('useAutomationExtension', False)
-options.add_experimental_option(
-    "excludeSwitches", ["enable-automation", 'enable-logging'])
-options.add_argument('--disable-blink-features=AutomationControlled')
-
-bot = webdriver.Chrome(service=service, options=options)
-wait = WebDriverWait(bot, 60)
-wait3secs = WebDriverWait(bot, 3)
-action = ActionChains(bot)
-# bot.set_window_position(676, 0)
-bot.set_window_size(300, 733)
-bot.set_window_position(870, 0)
-wa_bot = Whatsapp(number_id=NUM_ID, token=TOKEN)
-pyautogui.FAILSAFE = False
-pyautogui.press('esc')
-
-gmtTime: str = lambda tz: datetime.now(
-    pytz.timezone(tz)).strftime("%H : %M : %S")
 
 def open_WhatsApp():
     bot.get("https://web.whatsapp.com")
@@ -201,7 +173,7 @@ def autoViewStatus(
                 break
             except TimeoutException: continue
             except NoSuchElementException: 
-                # return  # COMMENT THIS AND USE BELOW FOR SCROLL
+                # return  "c0f35596-91a4-4eaf-a105-81ffd6cdcd6e.mp4"# COMMENT THIS AND USE BELOW FOR SCROLL
                 
                 scroll(statusUploaderName)
                 wait.until(EC.invisibility_of_element((By.XPATH, tempStatusThumbnail)))
@@ -487,14 +459,13 @@ def uploadToTwitter(**media_info):
         if all([value['caption'] != '', value['caption'] != None]):
             bot.find_elements(By.XPATH, tweet_textarea)[-1].send_keys(value['caption'])
         if value['type'] != 'text':  # Add Media if no text
-            bot.find_element(By.XPATH, add_photo_xpath).click(); sleep(3)
+            bot.find_element(By.XPATH, add_photo_xpath).click(); sleep(5)  # reduce to 3 seconds
             pyautogui.write(f'"{key}{extension()}"')
             pyautogui.press('enter'); sleep(3)
             bot.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             if value['type'] == 'video':
                 while True:
                     with contextlib.suppress(AssertionError):
-                        # if len(bot.find_elements(By.XPATH, uploaded_percentage)) == idx:
                         upload_status = bot.find_elements(By.XPATH, uploaded_percentage)[-1].text
                         assert upload_status == "Uploaded (100%)"
                         break
@@ -504,12 +475,44 @@ def uploadToTwitter(**media_info):
             bot.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             bot.find_elements(By.XPATH, '//div[@aria-label="Remove Tweet"]')[-1].click()
             sleep(2)
+            wa_bot.send_message(NUMBER, f"Done uploading at {gmtTime(timezone)}.\nWaiting on you to let go.", \
+                reply_markup=Inline_list("Show list",list_items=[List_item("Nice one 👌"), List_item("Thanks ✨"), List_item("Great Job")]))
             bot.find_element(By.XPATH, '//div[@data-testid="tweetButton"]').click()
             wait.until(EC.url_changes(compose_tweet_url))
             assert compose_tweet_url != 'https://twitter.com/home'
 
 
 if __name__ == "__main__":
+    
+    service = Service(executable_path=driverpath)
+    options = Options()
+    options.add_argument("--no-sandbox")
+    # options.add_argument("--headless")  # Whatsapp does not support headless
+    options.add_argument("--single-process")
+    options.add_experimental_option('prefs', prefs)
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument(r'--profile-directory=Tweeter Profile')
+    options.add_argument(r'user-data-dir=C:\Tweeter Chrome Profile')
+    options.add_experimental_option('useAutomationExtension', False)
+    options.add_experimental_option(
+        "excludeSwitches", ["enable-automation", 'enable-logging'])
+    options.add_argument('--disable-blink-features=AutomationControlled')
+
+    bot = webdriver.Chrome(service=service, options=options)
+    wait = WebDriverWait(bot, 60)
+    wait3secs = WebDriverWait(bot, 3)
+    action = ActionChains(bot)
+    # bot.set_window_position(676, 0)
+    bot.set_window_size(300, 733)
+    bot.set_window_position(870, 0)
+    wa_bot = Whatsapp(number_id=NUM_ID, token=TOKEN)
+    pyautogui.FAILSAFE = False
+    pyautogui.press('esc')
+
+    gmtTime: str = lambda tz: datetime.now(
+        pytz.timezone(tz)).strftime("%H : %M : %S")
+
+
     status_captions: Optional[Dict] = autoViewStatus()
     status_captions: Optional[Dict] = processVideos(**status_captions)
     # status_captions = {
