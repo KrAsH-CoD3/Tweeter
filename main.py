@@ -26,7 +26,7 @@ TOKEN: str =  env_variable.get("TOKEN")  # Token
 set_default("fancy99")
 
 timezone: str = "Africa/Lagos"  # Your timezone
-statusUploaderName: str = "Ijk" # As it is saved on your phone(Case Sensitive)
+statusUploaderName: str = "B Lanre" # As it is saved on your phone(Case Sensitive)
 # statusUploaderName: str = input("Whose person status do you want to view? ") # As it is saved on your phone(Case Sensitive)
 ppsXpath: str = f'//span[@title="{statusUploaderName}"]//..//..//..//preceding-sibling::\
     div[@class="_1AHcd"]//*[local-name()="svg" and @class="bx0vhl82 ma4rpf0l lhggkp7q"]'
@@ -457,7 +457,13 @@ def uploadToTwitter(**media_info):
 
     for idx, (key, value) in enumerate(media_info.items(), 1):
         if all([value['caption'] != '', value['caption'] != None]):
-            bot.find_elements(By.XPATH, tweet_textarea)[-1].send_keys(value['caption'])
+            if len(value['caption']) <= 280:
+                bot.find_elements(By.XPATH, tweet_textarea)[-1].send_keys(value['caption'])
+            else:
+                tweet_limit_chars: str = value['caption'][:281]
+                tweet_limit_chars: str = value['caption'][281:]
+                bot.find_element(By.XPATH, '//div[@aria-label="Add Tweet"]').click()
+                sleep(2)
         if value['type'] != 'text':  # Add Media if no text
             bot.find_element(By.XPATH, add_photo_xpath).click(); sleep(5)  # reduce to 3 seconds
             pyautogui.write(f'"{key}{extension()}"')
