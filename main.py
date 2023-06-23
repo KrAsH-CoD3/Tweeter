@@ -26,7 +26,7 @@ TOKEN: str =  env_variable.get("TOKEN")  # Token
 set_default("fancy99")
 
 timezone: str = "Africa/Lagos"  # Your timezone
-statusUploaderName: str = "B Lanre" # As it is saved on your phone(Case Sensitive)
+statusUploaderName: str = "MentalMartins" # As it is saved on your phone(Case Sensitive)
 # statusUploaderName: str = input("Whose person status do you want to view? ") # As it is saved on your phone(Case Sensitive)
 ppsXpath: str = f'//span[@title="{statusUploaderName}"]//..//..//..//preceding-sibling::\
     div[@class="_1AHcd"]//*[local-name()="svg" and @class="bx0vhl82 ma4rpf0l lhggkp7q"]'
@@ -460,10 +460,14 @@ def uploadToTwitter(**media_info):
             if len(value['caption']) <= 280:
                 bot.find_elements(By.XPATH, tweet_textarea)[-1].send_keys(value['caption'])
             else:
-                tweet_limit_chars: str = value['caption'][:281]
-                tweet_limit_chars: str = value['caption'][281:]
+                first_part: list = value['caption'][:281].split(" ")
+                first_part_end: str = first_part.pop(-1)
+                firstpart_together: str = " ".join(first_part)
+                last_part: str = first_part_end + value['caption'][281:]
+                bot.find_elements(By.XPATH, tweet_textarea)[-1].send_keys(firstpart_together)
                 bot.find_element(By.XPATH, '//div[@aria-label="Add Tweet"]').click()
                 sleep(2)
+                bot.find_elements(By.XPATH, tweet_textarea)[-1].send_keys(last_part)
         if value['type'] != 'text':  # Add Media if no text
             bot.find_element(By.XPATH, add_photo_xpath).click(); sleep(5)  # reduce to 3 seconds
             pyautogui.write(f'"{key}{extension()}"')
@@ -472,6 +476,7 @@ def uploadToTwitter(**media_info):
             if value['type'] == 'video':
                 while True:
                     with contextlib.suppress(AssertionError):
+                        sleep(3)
                         upload_status = bot.find_elements(By.XPATH, uploaded_percentage)[-1].text
                         assert upload_status == "Uploaded (100%)"
                         break
@@ -521,9 +526,18 @@ if __name__ == "__main__":
 
     status_captions: Optional[Dict] = autoViewStatus()
     status_captions: Optional[Dict] = processVideos(**status_captions)
+    # text1 = "Amidst the serene landscape, where time stood still, a gentle breeze caressed the blooming petals, while the sun cast its warm embrace, illuminating the verdant meadows, as birds soared high, their melodic choruses filling the air, weaving a tapestry of nature's beauty that captivated hearts and stirred the soul."
+    # text2 = "In the tranquil meadow, bathed in the golden glow of the setting sun, a gentle breeze whispered through the swaying wildflowers while birds serenaded the fading day with their melodic songs, creating a harmonious symphony that embraced the senses and carried one's thoughts to distant lands of dreams and endless possibilities."
+    # text3 = "In the depths of the enchanted forest, where ancient trees whispered secrets, dappled sunlight filtered through the lush canopy, illuminating a carpet of moss, while a chorus of woodland creatures rustled in harmony, and the scent of wildflowers mingled with earth, immersing one in a realm of untamed magic and untold wonders."
+    # text4 = "In the enchanting twilight, as stars began to sprinkle the indigo canvas above, a velvety hush settled over the whispering woods, where ancient trees stood tall, their branches reaching for the heavens, while delicate fireflies waltzed through the air, casting ethereal glow, painting a magical realm that beckoned wanderers to lose themselves in nature's embrace."
     # status_captions = {
-    #     'processedVideo': {'type': 'video', 'caption': None},
-    #     'processedVideo - Copy': {'type': 'video', 'caption': None},
+        # 'sampletext1': {'type': 'text', 'caption': text1},
+        # 'sampletext2': {'type': 'text', 'caption': text2},
+        # 'sampletext3': {'type': 'text', 'caption': text3},
+        # 'sampletext4': {'type': 'text', 'caption': text4},
+        # 'video1': {'type': 'video', 'caption': text4},
+        # 'processedVideo': {'type': 'video', 'caption': None},
+        # 'processedVideo - Copy': {'type': 'video', 'caption': None},
 
         # '149d5777-ba16-48fa-8abd-a0886feba294': {'type': 'video', 'caption': None},
         # 'cb365106-1c9e-43c4-a4a0-ec23872e0453': {'type': 'video', 'caption': None},
@@ -531,6 +545,6 @@ if __name__ == "__main__":
     # }
 
     uploadToTwitter(**status_captions)
-    wa_bot.send_message(NUMBER, f"Successfully Uploaded to Twitter at {gmtTime(timezone)}.", \
+    wa_bot.send_message(NUMBER, f"Successfully Tweeted All Tweets at {gmtTime(timezone)}.", \
         reply_markup=Inline_list("Show list",list_items=[List_item("Nice one 👌"), List_item("Thanks ✨"), List_item("Great Job")]))
         
