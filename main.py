@@ -24,9 +24,10 @@ TOKEN: str =  env_variable.get("TOKEN")  # Token
 
 
 set_default("fancy99")
+tprint("Tweeter", "3d_diagonal")
 
 timezone: str = "Africa/Lagos"  # Your timezone
-statusUploaderName: str = "MentalMartins" # As it is saved on your phone(Case Sensitive)
+statusUploaderName: str = "Rita Ora" # As it is saved on your phone(Case Sensitive)
 # statusUploaderName: str = input("Whose person status do you want to view? ") # As it is saved on your phone(Case Sensitive)
 ppsXpath: str = f'//span[@title="{statusUploaderName}"]//..//..//..//preceding-sibling::\
     div[@class="_1AHcd"]//*[local-name()="svg" and @class="bx0vhl82 ma4rpf0l lhggkp7q"]'
@@ -471,12 +472,12 @@ def uploadToTwitter(**media_info):
         if value['type'] != 'text':  # Add Media if no text
             bot.find_element(By.XPATH, add_photo_xpath).click(); sleep(5)  # reduce to 3 seconds
             pyautogui.write(f'"{key}{extension()}"')
-            pyautogui.press('enter'); sleep(3)
+            pyautogui.press('enter'); sleep(5)
             bot.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             if value['type'] == 'video':
                 while True:
                     with contextlib.suppress(AssertionError):
-                        sleep(3)
+                        # sleep(3)
                         upload_status = bot.find_elements(By.XPATH, uploaded_percentage)[-1].text
                         assert upload_status == "Uploaded (100%)"
                         break
